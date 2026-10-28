@@ -1,0 +1,112 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "PantryPilot API",
+    "version": "1.0.0",
+    "description": "API for PantryPilot Autonomous Multi-Agent Food Intelligence System"
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "System Health and Dependency Status",
+        "responses": {
+          "200": {
+            "description": "System operational",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "healthy" },
+                    "demo_mode": { "type": "boolean", "example": true },
+                    "version": { "type": "string", "example": "1.0.0" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/intake/receipt": {
+      "post": {
+        "summary": "Ingest grocery receipt or text list for multimodal extraction",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "raw_text": { "type": "string" },
+                  "image_base64": { "type": "string" },
+                  "household_id": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Extracted items for human approval" }
+        }
+      }
+    },
+    "/api/inventory": {
+      "get": {
+        "summary": "List live household pantry items with expiry status",
+        "parameters": [
+          { "name": "household_id", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "List of active inventory items" }
+        }
+      },
+      "post": {
+        "summary": "Commit approved grocery items to inventory",
+        "responses": {
+          "201": { "description": "Items saved successfully" }
+        }
+      }
+    },
+    "/api/plan/generate": {
+      "post": {
+        "summary": "Generate waste-minimizing weekly meal plan satisfying all constraints",
+        "responses": {
+          "200": { "description": "Generated meal plan with member safety verdicts" }
+        }
+      }
+    },
+    "/api/safety/veto-check": {
+      "post": {
+        "summary": "Run deterministic allergen and medical constraint check on ingredients",
+        "responses": {
+          "200": { "description": "Deterministic safety verdict" }
+        }
+      }
+    },
+    "/api/shopping/list": {
+      "get": {
+        "summary": "Get consolidated aisle-grouped shopping list",
+        "responses": {
+          "200": { "description": "Shopping list" }
+        }
+      }
+    },
+    "/api/sustainability/metrics": {
+      "get": {
+        "summary": "Get aggregate food waste avoided, CO2e mitigated, and money saved",
+        "responses": {
+          "200": { "description": "Sustainability metrics and methodology" }
+        }
+      }
+    },
+    "/api/demo/seed": {
+      "post": {
+        "summary": "Reset and seed standard realistic demo household",
+        "responses": {
+          "200": { "description": "Household seeded with profiles and inventory" }
+        }
+      }
+    }
+  }
+}

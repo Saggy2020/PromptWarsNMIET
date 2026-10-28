@@ -1,0 +1,67 @@
+name: PantryPilot CI & Quality Gate
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  backend-test:
+    name: Backend Tests & Safety Evals
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          cd backend
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Safety Engine Unit Tests
+        run: |
+          cd backend
+          export DEMO_MODE=true
+          pytest tests/ -v --cov=app
+
+      - name: Run Deterministic Allergen Safety Eval Gate (Zero False Negatives)
+        run: |
+          cd backend
+          export DEMO_MODE=true
+          python -m evals.run_safety_suite
+
+      - name: Run Adversarial Prompt Injection Benchmark
+        run: |
+          cd backend
+          export DEMO_MODE=true
+          python -m evals.run_injection_suite
+
+  frontend-build:
+    name: Frontend Build & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm ci || npm install
+
+      - name: Next.js Type Check & Build
+        run: |
+          cd frontend
+          npm run build
