@@ -24,12 +24,12 @@ export default function AuditPage() {
   }, []);
 
   const handleExport = () => {
-    window.open('http://localhost:8000/api/privacy/export?household_id=demo-household-sharma', '_blank');
+    window.open('http://localhost:8008/api/privacy/export?household_id=demo-household-sharma', '_blank');
   };
 
   const handleDelete = async () => {
     if (confirm('Are you sure you want to permanently delete all household data per Privacy by Design principles?')) {
-      await fetch('http://localhost:8000/api/privacy/delete-all?household_id=demo-household-sharma', { method: 'DELETE' });
+      await fetch('http://localhost:8008/api/privacy/delete-all?household_id=demo-household-sharma', { method: 'DELETE' });
       alert('All household data permanently erased.');
       window.location.reload();
     }

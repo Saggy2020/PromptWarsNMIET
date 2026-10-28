@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { Sparkles, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { resetDemoHousehold } from '../lib/api';

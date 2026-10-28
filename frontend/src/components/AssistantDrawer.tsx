@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { MessageSquare, X, Send, Bot, User, AlertCircle, CheckCircle, ShieldAlert } from 'lucide-react';
 import { sendChatMessage } from '../lib/api';

@@ -96,6 +96,8 @@ for allergen, synonyms in ALLERGEN_ONTOLOGY.items():
     for syn in synonyms:
         INVERTED_ALLERGEN_MAP[syn.lower().strip()] = allergen
 
+import re
+
 def resolve_allergen(ingredient_text: str) -> List[tuple[AllergenEnum, str]]:
     """
     Scans ingredient string for any matching allergen synonyms or derivatives.
@@ -104,13 +106,25 @@ def resolve_allergen(ingredient_text: str) -> List[tuple[AllergenEnum, str]]:
     text = ingredient_text.lower().strip()
     detected = []
     
-    # Check exact match or substring in normalized token
+    # Check if explicitly certified/labeled allergen-free (e.g. gluten-free)
+    is_gluten_free = "gluten-free" in text or "gluten free" in text
+    
+    # Check exact match or word boundary in normalized token
     for syn, allergen in INVERTED_ALLERGEN_MAP.items():
-        # Word boundary or phrase check
-        if syn == text or f" {syn} " in f" {text} " or f"{syn}s " in f" {text} " or syn in text:
-            # Prevent false positives like 'coconut' matching 'nut'
-            if syn == "nut" and ("coconut" in text or "butternut" in text):
-                continue
-            detected.append((allergen, syn))
+        if allergen == AllergenEnum.WHEAT_GLUTEN and is_gluten_free and syn in ("gluten", "wheat"):
+            continue
+
+        # Prevent subword false positives for short tokens (<=4 chars) like 'fu' in 'tofu' or 'egg' in 'veggie'
+        if len(syn) <= 4:
+            pattern = rf'\b{re.escape(syn)}s?\b'
+            if re.search(pattern, text):
+                if syn == "nut" and ("coconut" in text or "butternut" in text):
+                    continue
+                detected.append((allergen, syn))
+        else:
+            if syn in text:
+                if syn == "tree nut" and ("coconut" in text or "butternut" in text):
+                    continue
+                detected.append((allergen, syn))
             
     return detected

@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     
     # Server & Security
     backend_host: str = "0.0.0.0"
-    backend_port: int = 8000
+    backend_port: int = 8008
     cors_origins: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000", "*"]
     rate_limit_per_minute: int = 60
     secret_key: str = "dev-secret-key-pantrypilot-2026"
